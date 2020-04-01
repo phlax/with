@@ -1,0 +1,14 @@
+Source: with
+Section: unknown
+Priority: optional
+Maintainer: "Ryan Northey" <ryan@synca.io>
+Build-Depends: debhelper (>=11~), bash-completion
+Standards-Version: 4.1.4
+Homepage: https://github.com/phlax/with
+
+Package: with
+Section: custom
+Priority: optional
+Architecture: all
+Essential: no
+Description: Run commands in registered directories

@@ -1,0 +1,31 @@
+#!/bin/bash
+
+CONF=$1
+CMD=$2
+
+touch ~/.$CONF
+data=`cat ~/.$CONF`
+
+if [ "$data" == "" ]; then
+    echo "{}" > ~/.$CONF
+    data="{}"
+fi
+
+
+case $CMD in
+    "get" )
+	value=$(echo $data | jq -r ".$3")
+	echo $value
+	;;
+    "dump" )
+        echo $data ;;
+    "list" )
+        echo $data ;;
+    "unset" )
+        echo $data ;;
+    "set" )
+        update=$(jq ".$3 = \"$4\"" ~/.$CONF)
+	echo $update
+	echo $update > ~/.$CONF;;
+
+esac
