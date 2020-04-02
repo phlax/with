@@ -1,14 +1,16 @@
 Source: with
-Section: unknown
+Section: devel
 Priority: optional
 Maintainer: "Ryan Northey" <ryan@synca.io>
-Build-Depends: debhelper (>=11~), bash-completion
+Build-Depends: debhelper (>=11~), bash-completion, pandoc
 Standards-Version: 4.1.4
 Homepage: https://github.com/phlax/with
 
 Package: with
-Section: custom
+Section: devel
 Priority: optional
 Architecture: all
-Essential: no
+Depends: kv, jq
 Description: Run commands in registered directories
+ Alias directories, and run commands in those directories,
+ with autocompletion of commands and paths.

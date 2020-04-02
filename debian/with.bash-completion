@@ -1,5 +1,5 @@
+#!/bin/bash
 
-data=`kv with dump`
 OWD=`pwd`
 
 
@@ -9,58 +9,58 @@ completion_function() {
 
 
 delegate_completion () {
-    prev="${COMP_WORDS[2]}"
+    local cmd
+    cmd="${COMP_WORDS[2]}"
     COMP_WORDS=(${COMP_WORDS[@]:2})
     COMP_CWORD=$((COMP_CWORD-=2))
-    eval "$(completion_function $prev)"
+    eval "$(completion_function $cmd)"
 }
 
 
 filepath () {
-    local key
+    local key result
     key=${COMP_WORDS[1]}
-    if [ "$key" != "" ]; then
-	echo $(echo $data | jq -r ".$key")
+    if [[ "$key" != "" ]]; then
+	if [[ "${key:0:1}" != "@" ]]; then
+	    result=$(kv -c with get $key)
+	    if [ "$result" != "null" ]; then
+		echo $result
+	    fi
+	fi
+    fi
+}
+
+
+completion () {
+    local cur values
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    if [ $COMP_CWORD == 1 ]; then
+	values="@dump @get @keys @values @set @unset $(kv -c with keys)"
+	COMPREPLY=( $(compgen -W "${values[@]##*/}" -- $cur) )
+    elif [ $1 != "" ]; then
+	if [ $COMP_CWORD == 2 ]; then
+	    COMPREPLY=($(compgen -abckA function -- $cur))
+	else
+	    delegate_completion
+	fi
     fi
 }
 
 
 _with_complete()
 {
-    local cur prev values cwd
+    local cwd
     COMPREPLY=()
-    cur="${COMP_WORDS[COMP_CWORD]}"
-    prev="${COMP_WORDS[COMP_CWORD-1]}"
     cwd=$(filepath)
-
-    if [ "$cwd" != "" ] && [ "$cwd" != "null" ] ; then
-	cd "$OWD/$cwd" >> /dev/null
+    if [ "$cwd" != "" ] ; then
+	cd "$cwd" >> /dev/null
     fi
-
-    if [[ ${cur} == "" ]] ; then
-	if [ $COMP_CWORD == 1 ]; then
-	    values=$(echo $data | jq "keys[]")
-	    values="@dump @get @list @set @unset $values"
-	    COMPREPLY=( $(compgen -W "${values[@]##*/}") )
-	elif [ $COMP_CWORD == 2 ]; then
-	    COMPREPLY=($(compgen -abckA function))
-	else
-	    delegate_completion
-	fi
-    else
-	if [ $COMP_CWORD == 1 ]; then
-	    values=$(echo $data | jq "keys[] | select(. | startswith(\"$cur\"))")
-	    COMPREPLY=( $(compgen -W $values -- ${cur}) )
-	elif [ $COMP_CWORD == 2 ]; then
-	    COMPREPLY=($(compgen -abckA function | grep "^$cur"))
-	else
-	    delegate_completion
-	fi
-    fi
-    if [ "$cwd" != "" ] && [ "$cwd" != "null" ] ; then
-	cd - >> /dev/null
+    completion $cwd || 0
+    if [ "$cwd" != "" ] ; then
+	cd "$OWD" >> /dev/null
     fi
     return 0
 }
+
 
 complete -F _with_complete with

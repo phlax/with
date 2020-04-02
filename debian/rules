@@ -1,12 +1,10 @@
 #!/usr/bin/make -f
-# You must remove unused comment lines for the released package.
-#export DH_VERBOSE = 1
 
 %:
 	dh $@ --with bash-completion
 
-#override_dh_auto_install:
-#       dh_auto_install -- prefix=/usr
-
-#override_dh_install:
-#       dh_install --list-missing -X.pyc -X.pyo
+override_dh_installman:
+	mkdir -p debian/tmp
+	pandoc --standalone --from gfm --to man README.md --output debian/tmp/with.1
+	dh_installman
+	rm -rf debian/tmp
