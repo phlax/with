@@ -1,0 +1,22 @@
+#!/bin/bash
+
+OWD=`pwd`
+ARGS=($@)
+CMD=$1
+
+
+case $CMD in
+    @get | @unset | @dump | @keys | @values )
+	KV="${CMD[@]:1}"
+	kv -c with $KV $2
+	;;
+    @set )
+	kv -c with set $2 $(realpath $3) ;;
+    *)
+	cwd=$(kv -c with get $CMD)
+	cd $cwd >> /dev/null
+	${ARGS[@]:1} || 0
+	cd $OWD >> /dev/null
+	;;
+
+esac
