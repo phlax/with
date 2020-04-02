@@ -1,1 +1,5 @@
 *~
+debian/.debhelper
+debian/with
+debian/*log
+debian/debhelper-build-stamp
